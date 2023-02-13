@@ -6,18 +6,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class SignInScreen extends StatefulWidget {
-  const SignInScreen({required this.onTap, super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({required this.onTap, super.key});
 
   final VoidCallback onTap;
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
@@ -39,7 +40,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(
-                    height: 50,
+                    height: 30,
                   ),
                   const Icon(
                     Icons.lock,
@@ -49,7 +50,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   const SizedBox(
                     height: 20,
                   ),
-                  const Text('Welcome Back, You have been Missed'),
+                  const Text('Welcome, Lets Get you Started'),
                   const SizedBox(
                     height: 20,
                   ),
@@ -66,20 +67,19 @@ class _SignInScreenState extends State<SignInScreen> {
                     obscureText: true,
                   ),
                   const SizedBox(
-                    height: 20,
+                    height: 30,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Forgot Password?',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ],
+                  TextFieldWidget(
+                    controller: confirmPasswordController,
+                    hintText: 'Confirm Password',
+                    obscureText: true,
+                  ),
+                  const SizedBox(
+                    height: 20,
                   ),
                   const SizedBox(height: 30),
                   CustomButtonWidget(
-                      text: 'SignIn',
+                      text: 'SignUp',
                       onTap: () async {
                         try {
                           showDialog(
@@ -88,23 +88,36 @@ class _SignInScreenState extends State<SignInScreen> {
                                   child: CircularProgressIndicator(),
                                 )),
                           );
-                          await FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                            email: emailController.text.trim(),
-                            password: passwordController.text,
-                          );
+                          if (passwordController.text ==
+                              confirmPasswordController.text) {
+                            await FirebaseAuth.instance
+                                .createUserWithEmailAndPassword(
+                              email: emailController.text.trim(),
+                              password: passwordController.text,
+                            );
+                          } else {
+                            if (kDebugMode) {
+                              print('Passwords don\'t match');
+                            }
+                          }
+
                           if (mounted) {
                             Navigator.pop(context);
                           }
                         } on FirebaseAuthException catch (e) {
-                          if (e.code == 'user-not-found') {
+                          if (e.code == 'weak-password') {
                             if (kDebugMode) {
-                              print('No user found for that email.');
+                              print('The password provided is too weak.');
                             }
-                          } else if (e.code == 'wrong-password') {
+                          } else if (e.code == 'email-already-in-use') {
                             if (kDebugMode) {
-                              print('Wrong password provided for that user.');
+                              print(
+                                  'The account already exists for that email.');
                             }
+                          }
+                        } catch (e) {
+                          if (kDebugMode) {
+                            print(e);
                           }
                         }
                       }),
@@ -144,13 +157,13 @@ class _SignInScreenState extends State<SignInScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Not a memeber?  ',
+                        'Already have an account?  ',
                         style: TextStyle(color: Colors.grey[700]),
                       ),
                       GestureDetector(
                         onTap: widget.onTap,
                         child: const Text(
-                          'Register Now',
+                          'Sign In',
                           style: TextStyle(
                               fontWeight: FontWeight.w700, color: Colors.blue),
                         ),
