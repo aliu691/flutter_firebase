@@ -5,16 +5,19 @@ class TextFieldWidget extends StatelessWidget {
       {required this.controller,
       this.obscureText = false,
       required this.hintText,
+      this.validator,
       super.key});
 
   final TextEditingController? controller;
   final bool obscureText;
   final String hintText;
+  final FormFieldValidator<String>? validator;
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
         controller: controller,
+        validator: validator,
         obscureText: obscureText,
         decoration: InputDecoration(
             hintText: hintText,

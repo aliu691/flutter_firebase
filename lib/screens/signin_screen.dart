@@ -1,3 +1,4 @@
+import 'package:firebase_1/helpers/validator.dart';
 import 'package:firebase_1/resources/images.dart';
 import 'package:firebase_1/widgets/alternate_login_widget.dart';
 import 'package:firebase_1/widgets/custom_button_widget.dart';
@@ -18,6 +19,7 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -53,110 +55,126 @@ class _SignInScreenState extends State<SignInScreen> {
                   const SizedBox(
                     height: 20,
                   ),
-                  TextFieldWidget(
-                    controller: emailController,
-                    hintText: 'Enter Email',
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  TextFieldWidget(
-                    controller: passwordController,
-                    hintText: 'Enter Password',
-                    obscureText: true,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Forgot Password?',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-                  CustomButtonWidget(
-                      text: 'SignIn',
-                      onTap: () async {
-                        try {
-                          showDialog(
-                            context: context,
-                            builder: ((context) => const Center(
-                                  child: CircularProgressIndicator(),
-                                )),
-                          );
-                          await FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                            email: emailController.text.trim(),
-                            password: passwordController.text,
-                          );
-                          if (mounted) {
-                            Navigator.pop(context);
-                          }
-                        } on FirebaseAuthException catch (e) {
-                          if (e.code == 'user-not-found') {
-                            if (kDebugMode) {
-                              print('No user found for that email.');
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFieldWidget(
+                          controller: emailController,
+                          hintText: 'Enter Email',
+                          validator: InputValidator.email,
+                        ),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                        TextFieldWidget(
+                          controller: passwordController,
+                          hintText: 'Enter Password',
+                          obscureText: true,
+                          validator: InputValidator.password,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Forgot Password?',
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                        CustomButtonWidget(
+                          text: 'SignIn',
+                          onTap: () async {
+                            final form = _formKey.currentState;
+                            if (form?.validate() ?? false) {
+                              try {
+                                showDialog(
+                                  context: context,
+                                  builder: ((context) => const Center(
+                                        child: CircularProgressIndicator(),
+                                      )),
+                                );
+                                await FirebaseAuth.instance
+                                    .signInWithEmailAndPassword(
+                                  email: emailController.text.trim(),
+                                  password: passwordController.text,
+                                );
+                                if (mounted) {
+                                  Navigator.pop(context);
+                                }
+                              } on FirebaseAuthException catch (e) {
+                                if (e.code == 'user-not-found') {
+                                  if (kDebugMode) {
+                                    print('No user found for that email.');
+                                  }
+                                } else if (e.code == 'wrong-password') {
+                                  if (kDebugMode) {
+                                    print(
+                                        'Wrong password provided for that user.');
+                                  }
+                                }
+                              }
                             }
-                          } else if (e.code == 'wrong-password') {
-                            if (kDebugMode) {
-                              print('Wrong password provided for that user.');
-                            }
-                          }
-                        }
-                      }),
-                  const SizedBox(height: 40),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          thickness: 0.5,
-                          color: Colors.grey[400],
+                          },
                         ),
-                      ),
-                      const Text('Or Continue with'),
-                      Expanded(
-                        child: Divider(
-                          thickness: 0.5,
-                          color: Colors.grey[400],
+                        const SizedBox(height: 40),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Divider(
+                                thickness: 0.5,
+                                color: Colors.grey[400],
+                              ),
+                            ),
+                            const Text('Or Continue with'),
+                            Expanded(
+                              child: Divider(
+                                thickness: 0.5,
+                                color: Colors.grey[400],
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 40,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      AlternateLoginWidget(imageUrl: AppImages.googleIcon),
-                      SizedBox(
-                        width: 30,
-                      ),
-                      AlternateLoginWidget(imageUrl: AppImages.appleIcon)
-                    ],
-                  ),
-                  const SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Not a memeber?  ',
-                        style: TextStyle(color: Colors.grey[700]),
-                      ),
-                      GestureDetector(
-                        onTap: widget.onTap,
-                        child: const Text(
-                          'Register Now',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w700, color: Colors.blue),
+                        const SizedBox(
+                          height: 40,
                         ),
-                      ),
-                    ],
-                  )
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            AlternateLoginWidget(
+                                imageUrl: AppImages.googleIcon),
+                            SizedBox(
+                              width: 30,
+                            ),
+                            AlternateLoginWidget(imageUrl: AppImages.appleIcon)
+                          ],
+                        ),
+                        const SizedBox(height: 40),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Not a memeber?  ',
+                              style: TextStyle(color: Colors.grey[700]),
+                            ),
+                            GestureDetector(
+                              onTap: widget.onTap,
+                              child: const Text(
+                                'Register Now',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.blue),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
