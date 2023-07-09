@@ -89,52 +89,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 30),
                         CustomButtonWidget(
-                            text: 'SignUp',
-                            onTap: () async {
-                              final form = _formKey.currentState;
-                              if (form?.validate() ?? false) {
-                                try {
-                                  showDialog(
-                                    context: context,
-                                    builder: ((context) => const Center(
-                                          child: CircularProgressIndicator(),
-                                        )),
-                                  );
-                                  if (passwordController.text ==
-                                      confirmPasswordController.text) {
-                                    await FirebaseAuth.instance
-                                        .createUserWithEmailAndPassword(
-                                      email: emailController.text.trim(),
-                                      password: passwordController.text,
-                                    );
-                                  } else {
-                                    if (kDebugMode) {
-                                      print('Passwords don\'t match');
-                                    }
-                                  }
-
-                                  if (mounted) {
-                                    Navigator.pop(context);
-                                  }
-                                } on FirebaseAuthException catch (e) {
-                                  if (e.code == 'weak-password') {
-                                    if (kDebugMode) {
-                                      print(
-                                          'The password provided is too weak.');
-                                    }
-                                  } else if (e.code == 'email-already-in-use') {
-                                    if (kDebugMode) {
-                                      print(
-                                          'The account already exists for that email.');
-                                    }
-                                  }
-                                } catch (e) {
-                                  if (kDebugMode) {
-                                    print(e);
-                                  }
-                                }
-                              }
-                            }),
+                          text: 'SignUp',
+                          onTap: _signup,
+                        ),
                         const SizedBox(height: 40),
                         Row(
                           children: [
@@ -156,9 +113,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(
                           height: 40,
                         ),
-                        Row(
+                        const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             AlternateLoginWidget(
                                 imageUrl: AppImages.googleIcon),
                             SizedBox(
@@ -196,5 +153,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  _signup() async {
+    final form = _formKey.currentState;
+    if (form?.validate() ?? false) {
+      try {
+        showDialog(
+          context: context,
+          builder: ((context) => const Center(
+                child: CircularProgressIndicator(),
+              )),
+        );
+        if (passwordController.text == confirmPasswordController.text) {
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text,
+          );
+        } else {
+          if (kDebugMode) {
+            print('Passwords don\'t match');
+          }
+        }
+
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          if (kDebugMode) {
+            print('The password provided is too weak.');
+          }
+        } else if (e.code == 'email-already-in-use') {
+          if (kDebugMode) {
+            print('The account already exists for that email.');
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print(e);
+        }
+      }
+    }
   }
 }

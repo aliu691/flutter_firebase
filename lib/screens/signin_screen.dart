@@ -4,8 +4,10 @@ import 'package:firebase_1/widgets/alternate_login_widget.dart';
 import 'package:firebase_1/widgets/custom_button_widget.dart';
 import 'package:firebase_1/widgets/text_field_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import 'forgot_password_screen.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({required this.onTap, super.key});
@@ -76,50 +78,31 @@ class _SignInScreenState extends State<SignInScreen> {
                         const SizedBox(
                           height: 20,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              'Forgot Password?',
-                              style: TextStyle(color: Colors.grey[600]),
+                        GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const ForgotPasswordScreen(),
                             ),
-                          ],
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                'Forgot Password?',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 30),
                         CustomButtonWidget(
                           text: 'SignIn',
-                          onTap: () async {
-                            final form = _formKey.currentState;
-                            if (form?.validate() ?? false) {
-                              try {
-                                showDialog(
-                                  context: context,
-                                  builder: ((context) => const Center(
-                                        child: CircularProgressIndicator(),
-                                      )),
-                                );
-                                await FirebaseAuth.instance
-                                    .signInWithEmailAndPassword(
-                                  email: emailController.text.trim(),
-                                  password: passwordController.text,
-                                );
-                                if (mounted) {
-                                  Navigator.pop(context);
-                                }
-                              } on FirebaseAuthException catch (e) {
-                                if (e.code == 'user-not-found') {
-                                  if (kDebugMode) {
-                                    print('No user found for that email.');
-                                  }
-                                } else if (e.code == 'wrong-password') {
-                                  if (kDebugMode) {
-                                    print(
-                                        'Wrong password provided for that user.');
-                                  }
-                                }
-                              }
-                            }
-                          },
+                          onTap: _signIn,
                         ),
                         const SizedBox(height: 40),
                         Row(
@@ -142,9 +125,9 @@ class _SignInScreenState extends State<SignInScreen> {
                         const SizedBox(
                           height: 40,
                         ),
-                        Row(
+                        const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             AlternateLoginWidget(
                                 imageUrl: AppImages.googleIcon),
                             SizedBox(
@@ -182,5 +165,44 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ),
     );
+  }
+
+  _signIn() async {
+    final form = _formKey.currentState;
+    if (form?.validate() ?? false) {
+      try {
+        showDialog(
+          context: context,
+          builder: ((context) => const Center(
+                child: CircularProgressIndicator(),
+              )),
+        );
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text,
+        );
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          Fluttertoast.showToast(
+              msg: 'No user found for that email.',
+              textColor: Colors.white,
+              gravity: ToastGravity.TOP,
+              backgroundColor: Colors.red,
+              toastLength: Toast.LENGTH_LONG);
+          Navigator.pop(context);
+        } else if (e.code == 'wrong-password') {
+          Fluttertoast.showToast(
+              msg: 'Wrong password provided for that user.',
+              textColor: Colors.white,
+              gravity: ToastGravity.TOP,
+              backgroundColor: Colors.red,
+              toastLength: Toast.LENGTH_LONG);
+          Navigator.pop(context);
+        }
+      }
+    }
   }
 }
