@@ -1,14 +1,16 @@
+import 'package:firebase_1/notifier/auth_notifier.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser?.email;
@@ -17,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Welcome'),
         actions: [
           GestureDetector(
-            onTap: (() => FirebaseAuth.instance.signOut()),
+            onTap: (() => ref.read(loginNotifierProvider.notifier).signOut()),
             child: const Icon(Icons.logout),
           ),
         ],

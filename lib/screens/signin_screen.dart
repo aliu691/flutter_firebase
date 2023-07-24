@@ -1,24 +1,26 @@
 import 'package:firebase_1/helpers/validator.dart';
+import 'package:firebase_1/notifier/auth_notifier.dart';
+import 'package:firebase_1/notifier/auth_state.dart';
 import 'package:firebase_1/resources/images.dart';
 import 'package:firebase_1/widgets/alternate_login_widget.dart';
 import 'package:firebase_1/widgets/custom_button_widget.dart';
 import 'package:firebase_1/widgets/text_field_widget.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'forgot_password_screen.dart';
 
-class SignInScreen extends StatefulWidget {
+class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({required this.onTap, super.key});
 
   final VoidCallback onTap;
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInScreenState extends ConsumerState<SignInScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -32,6 +34,21 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(
+      loginNotifierProvider,
+      ((prevoius, state) {
+        if (state is LoginStateError) {
+          Fluttertoast.showToast(
+            msg: state.error,
+            textColor: Colors.white,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.red,
+            toastLength: Toast.LENGTH_LONG,
+          );
+        }
+      }),
+    );
+
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: SafeArea(
@@ -102,7 +119,11 @@ class _SignInScreenState extends State<SignInScreen> {
                         const SizedBox(height: 30),
                         CustomButtonWidget(
                           text: 'SignIn',
-                          onTap: _signIn,
+                          onTap: () {
+                            ref.read(loginNotifierProvider.notifier).login(
+                                emailController.text.trim(),
+                                passwordController.text);
+                          },
                         ),
                         const SizedBox(height: 40),
                         Row(
@@ -165,44 +186,5 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ),
     );
-  }
-
-  _signIn() async {
-    final form = _formKey.currentState;
-    if (form?.validate() ?? false) {
-      try {
-        showDialog(
-          context: context,
-          builder: ((context) => const Center(
-                child: CircularProgressIndicator(),
-              )),
-        );
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text,
-        );
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          Fluttertoast.showToast(
-              msg: 'No user found for that email.',
-              textColor: Colors.white,
-              gravity: ToastGravity.TOP,
-              backgroundColor: Colors.red,
-              toastLength: Toast.LENGTH_LONG);
-          Navigator.pop(context);
-        } else if (e.code == 'wrong-password') {
-          Fluttertoast.showToast(
-              msg: 'Wrong password provided for that user.',
-              textColor: Colors.white,
-              gravity: ToastGravity.TOP,
-              backgroundColor: Colors.red,
-              toastLength: Toast.LENGTH_LONG);
-          Navigator.pop(context);
-        }
-      }
-    }
   }
 }
