@@ -7,8 +7,8 @@ import 'package:firebase_1/widgets/custom_button_widget.dart';
 import 'package:firebase_1/widgets/text_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
+import '../helpers/app_toast.dart';
 import 'forgot_password_screen.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
@@ -38,13 +38,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       loginNotifierProvider,
       ((prevoius, state) {
         if (state is LoginStateError) {
-          Fluttertoast.showToast(
-            msg: state.error,
-            textColor: Colors.white,
-            gravity: ToastGravity.TOP,
-            backgroundColor: Colors.red,
-            toastLength: Toast.LENGTH_LONG,
-          );
+          AppToasts().errorToast(state.error);
         }
       }),
     );

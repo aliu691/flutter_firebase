@@ -25,4 +25,16 @@ class LoginNotifier extends StateNotifier<LoginState> {
   void signOut() async {
     await ref.read(authRepositoryProvider).signOut();
   }
+
+  void signUp(String email, String password) async {
+    state = const LoginStateLoading();
+    try {
+      await ref
+          .read(authRepositoryProvider)
+          .signUpWithEmailAndPassword(email, password);
+      state = const LoginStateSuccess();
+    } catch (e) {
+      state = LoginStateError(e.toString());
+    }
+  }
 }

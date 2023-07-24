@@ -1,22 +1,24 @@
+import 'package:firebase_1/helpers/app_toast.dart';
 import 'package:firebase_1/helpers/validator.dart';
+import 'package:firebase_1/notifier/auth_notifier.dart';
+import 'package:firebase_1/notifier/auth_state.dart';
 import 'package:firebase_1/resources/images.dart';
 import 'package:firebase_1/widgets/alternate_login_widget.dart';
 import 'package:firebase_1/widgets/custom_button_widget.dart';
 import 'package:firebase_1/widgets/text_field_widget.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({required this.onTap, super.key});
 
   final VoidCallback onTap;
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
@@ -31,6 +33,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(loginNotifierProvider, (previous, state) {
+      if (state is LoginStateError) {
+        AppToasts().errorToast(state.error);
+      }
+    });
+
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: SafeArea(
@@ -90,7 +98,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 30),
                         CustomButtonWidget(
                           text: 'SignUp',
-                          onTap: _signup,
+                          onTap: () =>
+                              ref.read(loginNotifierProvider.notifier).signUp(
+                                    emailController.text.trim(),
+                                    passwordController.text,
+                                  ),
                         ),
                         const SizedBox(height: 40),
                         Row(
@@ -153,47 +165,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
-  }
-
-  _signup() async {
-    final form = _formKey.currentState;
-    if (form?.validate() ?? false) {
-      try {
-        showDialog(
-          context: context,
-          builder: ((context) => const Center(
-                child: CircularProgressIndicator(),
-              )),
-        );
-        if (passwordController.text == confirmPasswordController.text) {
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text,
-          );
-        } else {
-          if (kDebugMode) {
-            print('Passwords don\'t match');
-          }
-        }
-
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'weak-password') {
-          if (kDebugMode) {
-            print('The password provided is too weak.');
-          }
-        } else if (e.code == 'email-already-in-use') {
-          if (kDebugMode) {
-            print('The account already exists for that email.');
-          }
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print(e);
-        }
-      }
-    }
   }
 }

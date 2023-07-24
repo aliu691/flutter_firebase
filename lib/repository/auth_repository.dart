@@ -30,4 +30,21 @@ class AuthRepository {
   Future<void> signOut() async {
     await _auth.signOut();
   }
+
+  Future<User?> signUpWithEmailAndPassword(
+      String email, String password) async {
+    try {
+      final result = await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+      return result.user;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        throw AuthException('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        throw AuthException('The account already exists for that email.');
+      } else {
+        throw AuthException('An error occured, please try again later');
+      }
+    }
+  }
 }
