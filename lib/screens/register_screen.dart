@@ -97,13 +97,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                         const SizedBox(height: 30),
                         CustomButtonWidget(
-                          text: 'SignUp',
-                          onTap: () =>
-                              ref.read(loginNotifierProvider.notifier).signUp(
-                                    emailController.text.trim(),
-                                    passwordController.text,
-                                  ),
-                        ),
+                            text: 'SignUp',
+                            onTap: () {
+                              final form = _formKey.currentState;
+                              if (form?.validate() ?? false) {
+                                ref.read(loginNotifierProvider.notifier).signUp(
+                                      emailController.text.trim(),
+                                      passwordController.text,
+                                    );
+                              }
+                            }),
                         const SizedBox(height: 40),
                         Row(
                           children: [

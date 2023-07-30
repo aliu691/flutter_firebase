@@ -114,9 +114,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         CustomButtonWidget(
                           text: 'SignIn',
                           onTap: () {
-                            ref.read(loginNotifierProvider.notifier).login(
-                                emailController.text.trim(),
-                                passwordController.text);
+                            final form = _formKey.currentState;
+                            if (form?.validate() ?? false) {
+                              ref.read(loginNotifierProvider.notifier).login(
+                                  emailController.text.trim(),
+                                  passwordController.text);
+                            }
                           },
                         ),
                         const SizedBox(height: 40),
