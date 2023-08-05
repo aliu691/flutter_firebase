@@ -11,4 +11,14 @@ class AppToasts {
       toastLength: Toast.LENGTH_LONG,
     );
   }
+
+  successToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      textColor: Colors.white,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.green,
+      toastLength: Toast.LENGTH_LONG,
+    );
+  }
 }

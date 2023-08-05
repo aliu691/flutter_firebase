@@ -37,6 +37,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     ref.listen(loginNotifierProvider, (previous, state) {
       if (state is LoginStateError) {
         AppToasts().errorToast(state.error);
+        setState(
+          () {
+            isLoading = false;
+          },
+        );
       }
 
       if (state is LoginStateLoading) {
@@ -104,17 +109,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                         const SizedBox(height: 30),
                         CustomButtonWidget(
-                            text: 'SignUp',
-                            isLoading: isLoading,
-                            onTap: () {
-                              final form = _formKey.currentState;
-                              if (form?.validate() ?? false) {
-                                ref.read(loginNotifierProvider.notifier).signUp(
-                                      emailController.text.trim(),
-                                      passwordController.text,
-                                    );
-                              }
-                            }),
+                          text: 'SignUp',
+                          isLoading: isLoading,
+                          onTap: () {
+                            final form = _formKey.currentState;
+                            if (form?.validate() ?? false) {
+                              ref.read(loginNotifierProvider.notifier).signUp(
+                                    emailController.text.trim(),
+                                    passwordController.text,
+                                  );
+                            }
+                          },
+                        ),
                         const SizedBox(height: 40),
                         Row(
                           children: [

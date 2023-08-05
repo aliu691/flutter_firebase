@@ -37,4 +37,14 @@ class LoginNotifier extends StateNotifier<LoginState> {
       state = LoginStateError(e.toString());
     }
   }
+
+  void resetPassword(String email) async {
+    state = const LoginStateLoading();
+    try {
+      await ref.read(authRepositoryProvider).resetPassword(email);
+      state = const LoginStateSuccess();
+    } catch (e) {
+      state = LoginStateError(e.toString());
+    }
+  }
 }
