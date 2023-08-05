@@ -35,17 +35,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   }
 
   @override
-  void initState() {
-    setState(() {
-      isLoading = false;
-    });
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    //final bool isLoading = ref.read(sample.notifier).state = false;
-
     ref.listen(
       loginNotifierProvider,
       ((prevoius, state) {
@@ -136,7 +126,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           text: 'SignIn',
                           isLoading: isLoading,
                           onTap: () {
-                            print('from screen: $isLoading');
                             final form = _formKey.currentState;
                             if (form?.validate() ?? false) {
                               ref.read(loginNotifierProvider.notifier).login(

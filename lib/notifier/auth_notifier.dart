@@ -39,7 +39,8 @@ class LoginNotifier extends StateNotifier<LoginState> {
   }
 
   void resetPassword(String email) async {
-    state = const LoginStateLoading();
+    //state = const LoginStateLoading();
+    //fiugure out how to change from loading to success for a void function
     try {
       await ref.read(authRepositoryProvider).resetPassword(email);
       state = const LoginStateSuccess();

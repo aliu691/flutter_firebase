@@ -40,13 +40,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         );
       }
 
-      if (state is LoginStateLoading) {
-        setState(
-          () {
-            isLoading = true;
-          },
-        );
-      }
       if (state is LoginStateSuccess) {
         setState(
           () {
@@ -55,7 +48,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         );
         AppToasts().successToast('please check your email for the link');
 
-        Navigator.pop(context);
+        Navigator.popUntil(context, (Route<dynamic> route) => route.isFirst);
       }
     });
     return Scaffold(
