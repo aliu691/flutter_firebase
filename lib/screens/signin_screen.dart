@@ -25,6 +25,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  bool isLoading = false;
+
   @override
   void dispose() {
     emailController.dispose();
@@ -39,6 +41,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       ((prevoius, state) {
         if (state is LoginStateError) {
           AppToasts().errorToast(state.error);
+        }
+
+        if (state is LoginStateLoading) {
+          setState(() {
+            isLoading = true;
+          });
         }
       }),
     );
@@ -113,7 +121,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         const SizedBox(height: 30),
                         CustomButtonWidget(
                           text: 'SignIn',
+                          isLoading: isLoading,
                           onTap: () {
+                            print('from screen: $isLoading');
                             final form = _formKey.currentState;
                             if (form?.validate() ?? false) {
                               ref.read(loginNotifierProvider.notifier).login(

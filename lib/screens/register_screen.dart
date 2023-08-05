@@ -23,6 +23,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -36,6 +37,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     ref.listen(loginNotifierProvider, (previous, state) {
       if (state is LoginStateError) {
         AppToasts().errorToast(state.error);
+      }
+
+      if (state is LoginStateLoading) {
+        setState(() {
+          isLoading = true;
+        });
       }
     });
 
@@ -98,6 +105,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         const SizedBox(height: 30),
                         CustomButtonWidget(
                             text: 'SignUp',
+                            isLoading: isLoading,
                             onTap: () {
                               final form = _formKey.currentState;
                               if (form?.validate() ?? false) {
