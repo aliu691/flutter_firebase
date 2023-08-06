@@ -48,4 +48,26 @@ class LoginNotifier extends StateNotifier<LoginState> {
       state = LoginStateError(e.toString());
     }
   }
+
+  void sendActivateEmail() async {
+    //state = const LoginStateLoading();
+    //fiugure out how to change from loading to success for a void function
+    try {
+      await ref.read(authRepositoryProvider).sendActivateEmail();
+      state = const LoginStateSuccess();
+    } catch (e) {
+      state = LoginStateError(e.toString());
+    }
+  }
+
+  void reloadUser() async {
+    //state = const LoginStateLoading();
+    //fiugure out how to change from loading to success for a void function
+    try {
+      await ref.read(authRepositoryProvider).reloadUser();
+      state = const LoginStateSuccess();
+    } catch (e) {
+      state = LoginStateError(e.toString());
+    }
+  }
 }

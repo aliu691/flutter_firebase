@@ -7,3 +7,6 @@ final authRepositoryProvider =
 
 final authStateChangesProvider =
     StreamProvider((ref) => ref.read(authRepositoryProvider).authStateChanges);
+
+final isEmailVerifiedProvider =
+    Provider((ref) => ref.read(authRepositoryProvider).isEmailVerified);

@@ -1,8 +1,9 @@
 import 'package:firebase_1/providers/auth_provider.dart';
-import 'package:firebase_1/screens/home_screen.dart';
 import 'package:firebase_1/screens/login_register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'check_verification_screen.dart';
 
 class AuthPage extends ConsumerWidget {
   const AuthPage({super.key});
@@ -13,7 +14,7 @@ class AuthPage extends ConsumerWidget {
     return authState.when(
       data: (user) {
         if (user != null) {
-          return const HomeScreen();
+          return const CheckEmailVerificationPage();
         }
         return const LoginOrRegisterScreen();
       },

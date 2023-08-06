@@ -8,6 +8,8 @@ class AuthRepository {
 
   Stream<User?> get authStateChanges => _auth.idTokenChanges();
 
+  bool get isEmailVerified => _auth.currentUser!.emailVerified;
+
   Future<User?> signInwithEmailAndPassword(
       String email, String password) async {
     try {
@@ -41,6 +43,22 @@ class AuthRepository {
   Future<void> resetPassword(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      AppExceptionsHandler().handleFirebaseExceptions(e.code);
+    }
+  }
+
+  Future<void> sendActivateEmail() async {
+    try {
+      await _auth.currentUser!.sendEmailVerification();
+    } on FirebaseAuthException catch (e) {
+      AppExceptionsHandler().handleFirebaseExceptions(e.code);
+    }
+  }
+
+  Future<void> reloadUser() async {
+    try {
+      await _auth.currentUser!.reload();
     } on FirebaseAuthException catch (e) {
       AppExceptionsHandler().handleFirebaseExceptions(e.code);
     }

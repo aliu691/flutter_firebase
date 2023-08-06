@@ -20,8 +20,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   TextEditingController emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  bool isLoading = false;
-
   @override
   void dispose() {
     emailController.dispose();
@@ -33,19 +31,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     ref.listen(loginNotifierProvider, (previous, state) {
       if (state is LoginStateError) {
         AppToasts().errorToast(state.error);
-        setState(
-          () {
-            isLoading = false;
-          },
-        );
       }
 
       if (state is LoginStateSuccess) {
-        setState(
-          () {
-            isLoading = false;
-          },
-        );
         AppToasts().successToast('please check your email for the link');
 
         Navigator.popUntil(context, (Route<dynamic> route) => route.isFirst);
@@ -75,7 +63,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                     height: 50,
                   ),
                   CustomButtonWidget(
-                    isLoading: isLoading,
                     text: 'Reset Password',
                     onTap: () {
                       final form = _formKey.currentState;
