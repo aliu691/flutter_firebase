@@ -1,4 +1,4 @@
-import 'package:firebase_1/screens/home_screen.dart';
+import 'package:firebase_1/screens/check_verification_page.dart';
 import 'package:firebase_1/screens/login_register_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ class AuthPage extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return const HomeScreen();
+            return const CheckVerificationPage();
           } else {
             return const LoginOrRegisterScreen();
           }
