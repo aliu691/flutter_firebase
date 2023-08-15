@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_1/helpers/validator.dart';
 import 'package:firebase_1/resources/images.dart';
 import 'package:firebase_1/widgets/alternate_login_widget.dart';
@@ -20,6 +21,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController ageController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -42,17 +45,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(
-                    height: 30,
-                  ),
-                  const Icon(
-                    Icons.lock,
-                    size: 100,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(
                     height: 20,
                   ),
-                  const Text('Welcome, Lets Get you Started'),
+                  const Row(
+                    children: [
+                      Text('Welcome, Lets Get you Started'),
+                    ],
+                  ),
                   const SizedBox(
                     height: 20,
                   ),
@@ -61,12 +60,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       children: [
                         TextFieldWidget(
+                          controller: nameController,
+                          hintText: 'Enter Name',
+                          validator: InputValidator.text,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFieldWidget(
+                          controller: ageController,
+                          hintText: 'Enter Age',
+                          validator: InputValidator.text,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFieldWidget(
                           controller: emailController,
                           hintText: 'Enter Email',
                           validator: InputValidator.email,
                         ),
                         const SizedBox(
-                          height: 30,
+                          height: 20,
                         ),
                         TextFieldWidget(
                           controller: passwordController,
@@ -75,7 +90,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: InputValidator.password,
                         ),
                         const SizedBox(
-                          height: 30,
+                          height: 20,
                         ),
                         TextFieldWidget(
                           controller: confirmPasswordController,
@@ -87,7 +102,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(
                           height: 20,
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 20),
                         CustomButtonWidget(
                           text: 'SignUp',
                           onTap: _signup,
@@ -119,7 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             AlternateLoginWidget(
                                 imageUrl: AppImages.googleIcon),
                             SizedBox(
-                              width: 30,
+                              width: 20,
                             ),
                             AlternateLoginWidget(imageUrl: AppImages.appleIcon)
                           ],
@@ -165,16 +180,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: CircularProgressIndicator(),
               )),
         );
-        if (passwordController.text == confirmPasswordController.text) {
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text,
-          );
-        } else {
-          if (kDebugMode) {
-            print('Passwords don\'t match');
-          }
-        }
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text,
+        );
+
+        _createUser(
+            name: nameController.text.trim(),
+            age: int.parse(ageController.text.trim()),
+            email: emailController.text.trim());
 
         if (mounted) {
           Navigator.pop(context);
@@ -195,5 +209,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
       }
     }
+  }
+}
+
+_createUser({
+  required String name,
+  required int age,
+  required String email,
+}) async {
+  await FirebaseFirestore.instance.collection('users').add({
+    'name': name,
+    'age': age,
+    'email': email,
+  });
+  if (kDebugMode) {
+    print('created user');
   }
 }
